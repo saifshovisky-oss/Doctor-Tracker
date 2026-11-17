@@ -27,15 +27,16 @@ export function SidebarContent({
         )}
       >
         {collapsed ? (
-          /* Collapsed: show just the icon mark — the green circle accent from the logo */
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#123C43]">
-            <svg viewBox="80 60 90 90" className="h-5 w-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="150" cy="80" r="14" fill="#A6FF8B" />
-              <path d="M129 92H80V137H107V170H128V137H129V92Z" fill="#20BFA9" />
-            </svg>
-          </div>
+          /* Collapsed: the same DT mark, scaled down */
+          <DtLogo className="h-7 w-auto shrink-0" aria-label="Doctor Tracker" />
         ) : (
-          <DtLogo className="h-9 w-auto" aria-label="Doctor Tracker" />
+          <div className="flex min-w-0 items-center gap-2.5">
+            <DtLogo className="h-9 w-auto shrink-0" aria-label="Doctor Tracker" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-tight text-slate-900">Doctor Tracker</p>
+              <p className="truncate text-[11px] text-muted-foreground">Healthcare administration</p>
+            </div>
+          </div>
         )}
       </div>
 

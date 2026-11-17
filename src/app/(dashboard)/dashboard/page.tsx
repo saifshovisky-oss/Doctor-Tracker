@@ -120,8 +120,9 @@ export default function DashboardPage() {
                 value={stats.data?.totalPatients ?? 0}
                 icon={PatientsIcon}
                 hint="Registered across your clinic"
+                href="/patients"
               />
-              <StatCard title="Total doctors" value={stats.data?.totalDoctors ?? 0} icon={DoctorsIcon} hint="Active profiles" accent="sky" />
+              <StatCard title="Total doctors" value={stats.data?.totalDoctors ?? 0} icon={DoctorsIcon} hint="Active profiles" accent="sky" href="/doctors" />
               <StatCard
                 title="New doctors this month"
                 value={stats.data?.newDoctorsThisMonth ?? 0}
@@ -129,6 +130,7 @@ export default function DashboardPage() {
                 hint="Joined since the 1st"
                 trend="+"
                 accent="indigo"
+                href="/doctors"
               />
               <StatCard
                 title="New patients this month"
@@ -137,6 +139,7 @@ export default function DashboardPage() {
                 hint="Registered since the 1st"
                 trend="+"
                 accent="amber"
+                href="/patients"
               />
             </>
           )}

@@ -1,5 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
+
+function renderWithClient(ui: ReactNode) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+}
 
 const createDoctor = vi.fn();
 const createPatient = vi.fn();
@@ -15,6 +22,11 @@ vi.mock('@/lib/hooks/use-data', () => ({
     isError: false,
   }),
   usePatientConditions: () => ({ data: ['Hypertension', 'Diabetes'], isPending: false }),
+  useConditionsCatalog: () => ({ data: { data: [{ name: 'Hypertension' }, { name: 'Diabetes' }] }, isPending: false }),
+  useUploadDoctorPhoto: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUploadPatientPhoto: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteDoctorPhoto: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeletePatientPhoto: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 import { DoctorForm } from '@/components/doctors/doctor-form';
@@ -27,7 +39,7 @@ describe('CRUD forms', () => {
   });
 
   it('blocks an invalid doctor form and submits a valid one', async () => {
-    render(<DoctorForm />);
+    renderWithClient(<DoctorForm />);
     fireEvent.click(screen.getByRole('button', { name: /add doctor/i }));
     await waitFor(() => expect(screen.getAllByText(/is required/i).length).toBeGreaterThan(0));
     expect(createDoctor).not.toHaveBeenCalled();
@@ -50,7 +62,7 @@ describe('CRUD forms', () => {
   });
 
   it('requires a patient name, condition and doctor', async () => {
-    render(<PatientForm />);
+    renderWithClient(<PatientForm />);
     fireEvent.click(screen.getByRole('button', { name: /add patient/i }));
     await waitFor(() => {
       expect(screen.getByText('Name is required')).toBeInTheDocument();
@@ -61,7 +73,7 @@ describe('CRUD forms', () => {
   });
 
   it('renders the doctor selector options', () => {
-    render(<PatientForm />);
+    renderWithClient(<PatientForm />);
     expect(screen.getByLabelText('Assigned doctor')).toBeInTheDocument();
     expect(screen.getByText('Search and select a doctor')).toBeInTheDocument();
   });
