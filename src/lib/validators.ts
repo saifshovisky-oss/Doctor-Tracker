@@ -18,7 +18,7 @@ export const patientSchema = z.object({
   age: z.preprocess(
     (value) => (value === '' || value === null || value === undefined ? undefined : value),
     z.coerce
-      .number({ invalid_type_error: 'Enter a valid age' })
+      .number({ error: 'Enter a valid age' })
       .int('Age must be a whole number')
       .min(0, 'Age must be at least 0')
       .max(120, 'Age must be at most 120')

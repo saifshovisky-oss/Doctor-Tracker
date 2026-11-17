@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,7 +67,7 @@ export function PatientForm({
   const pending = create.isPending || update.isPending;
 
   const form = useForm<PatientFormValues>({
-    resolver: zodResolver(patientSchema),
+    resolver: zodResolver(patientSchema) as Resolver<PatientFormValues>,
     defaultValues: patient ? toValues(patient) : { ...defaults, doctorId: defaultDoctorId ?? '' },
   });
 
