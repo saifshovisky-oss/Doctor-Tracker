@@ -10,8 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textArea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Spinner } from '@/components/common/states';
+import { DoctorCombobox } from '@/components/doctors/doctor-combobox';
+import { ConditionCombobox } from '@/components/patients/condition-combobox';
 import { patientSchema } from '@/lib/validators';
-import { useCreatePatient, useDoctors, useUpdatePatient } from '@/lib/hooks/use-data';
+import { useCreatePatient, useUpdatePatient } from '@/lib/hooks/use-data';
 import { errorMessage } from '@/lib/utils';
 import type { Patient, PatientFormValues } from '@/lib/types';
 
@@ -40,6 +42,15 @@ function toValues(patient?: Patient): PatientFormValues {
   };
 }
 
+function FieldLabel({ htmlFor, children, optional }: { htmlFor?: string; children: React.ReactNode; optional?: boolean }) {
+  return (
+    <Label htmlFor={htmlFor} className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">
+      {children}
+      {optional && <span className="ml-1 normal-case tracking-normal font-normal text-muted-foreground">(optional)</span>}
+    </Label>
+  );
+}
+
 export function PatientForm({
   patient,
   defaultDoctorId,
@@ -54,7 +65,6 @@ export function PatientForm({
   const create = useCreatePatient();
   const update = useUpdatePatient();
   const pending = create.isPending || update.isPending;
-  const doctors = useDoctors({ page: 1, limit: 100, sortBy: 'name', sortOrder: 'asc' });
 
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema),
@@ -65,6 +75,10 @@ export function PatientForm({
     if (patient) form.reset(toValues(patient));
     else if (defaultDoctorId) form.setValue('doctorId', defaultDoctorId);
   }, [patient, defaultDoctorId, form]);
+
+  const doctorName = patient?.doctorName
+    ? `${patient.doctorName}${patient.doctorSpecialization ? ` — ${patient.doctorSpecialization}` : ''}`
+    : undefined;
 
   const onSubmit = form.handleSubmit(async (values) => {
     const payload = {
@@ -89,77 +103,82 @@ export function PatientForm({
   });
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="patient-name">Full name</Label>
-          <Input id="patient-name" placeholder="Jane Doe" aria-invalid={!!form.formState.errors.name} {...form.register('name')} />
-          {form.formState.errors.name && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.name.message}</p>}
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">01</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Identity</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <FieldLabel htmlFor="patient-name">Full name</FieldLabel>
+            <Input id="patient-name" placeholder="Jane Doe" aria-invalid={!!form.formState.errors.name} {...form.register('name')} />
+            {form.formState.errors.name && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.name.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <FieldLabel htmlFor="patient-condition">Condition</FieldLabel>
+            <ConditionCombobox
+              value={form.watch('condition')}
+              onChange={(value) => form.setValue('condition', value, { shouldValidate: true })}
+              invalid={!!form.formState.errors.condition}
+            />
+            {form.formState.errors.condition && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.condition.message}</p>}
+          </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="patient-condition">Condition</Label>
-          <Input id="patient-condition" placeholder="Hypertension" aria-invalid={!!form.formState.errors.condition} {...form.register('condition')} />
-          {form.formState.errors.condition && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.condition.message}</p>}
+          <FieldLabel htmlFor="patient-doctor">Assigned doctor</FieldLabel>
+          <DoctorCombobox
+            value={form.watch('doctorId')}
+            onChange={(value) => form.setValue('doctorId', value, { shouldValidate: true })}
+            invalid={!!form.formState.errors.doctorId}
+          />
+          {form.formState.errors.doctorId && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.doctorId.message}</p>}
+          {doctorName && <p className="text-xs text-muted-foreground">Currently assigned to {doctorName}</p>}
         </div>
-      </div>
+      </section>
 
-      <div className="space-y-2">
-        <Label htmlFor="patient-doctor">Assigned doctor</Label>
-        <Select
-          value={form.watch('doctorId') || undefined}
-          onValueChange={(value) => form.setValue('doctorId', value, { shouldValidate: true })}
-        >
-          <SelectTrigger id="patient-doctor" aria-label="Assigned doctor" aria-invalid={!!form.formState.errors.doctorId}>
-            <SelectValue placeholder="Select a doctor" />
-          </SelectTrigger>
-          <SelectContent>
-            {(doctors.data?.data ?? []).map((doctor) => (
-              <SelectItem key={doctor.id} value={doctor.id}>
-                {doctor.name} — {doctor.specialization}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {form.formState.errors.doctorId && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.doctorId.message}</p>}
-        {doctors.isError && <p className="text-xs text-rose-600">Could not load doctors. Refresh and try again.</p>}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label htmlFor="patient-age">Age <span className="font-normal text-muted-foreground">(optional)</span></Label>
-          <Input id="patient-age" type="number" min={0} max={120} placeholder="42" aria-invalid={!!form.formState.errors.age} {...form.register('age')} />
-          {form.formState.errors.age && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.age.message}</p>}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">02</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Clinical & contact</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <FieldLabel htmlFor="patient-age" optional>Age</FieldLabel>
+            <Input id="patient-age" type="number" min={0} max={120} placeholder="42" aria-invalid={!!form.formState.errors.age} {...form.register('age')} />
+            {form.formState.errors.age && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.age.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <FieldLabel optional>Gender</FieldLabel>
+            <Select
+              value={form.watch('gender') || undefined}
+              onValueChange={(value) => form.setValue('gender', value as 'male' | 'female' | 'other')}
+            >
+              <SelectTrigger aria-label="Gender"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <FieldLabel htmlFor="patient-phone" optional>Phone</FieldLabel>
+            <Input id="patient-phone" placeholder="555-1234" {...form.register('phone')} />
+          </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="patient-gender">Gender <span className="font-normal text-muted-foreground">(optional)</span></Label>
-          <Select
-            value={form.watch('gender') || undefined}
-            onValueChange={(value) => form.setValue('gender', value as 'male' | 'female' | 'other')}
-          >
-            <SelectTrigger id="patient-gender" aria-label="Gender"><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <FieldLabel htmlFor="patient-email" optional>Email address</FieldLabel>
+          <Input id="patient-email" type="email" placeholder="jane@example.com" aria-invalid={!!form.formState.errors.email} {...form.register('email')} />
+          {form.formState.errors.email && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.email.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="patient-phone">Phone <span className="font-normal text-muted-foreground">(optional)</span></Label>
-          <Input id="patient-phone" placeholder="555-1234" {...form.register('phone')} />
+          <FieldLabel htmlFor="patient-notes" optional>Notes</FieldLabel>
+          <Textarea id="patient-notes" placeholder="Additional context about the patient…" {...form.register('notes')} />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="patient-email">Email <span className="font-normal text-muted-foreground">(optional)</span></Label>
-        <Input id="patient-email" type="email" placeholder="jane@example.com" aria-invalid={!!form.formState.errors.email} {...form.register('email')} />
-        {form.formState.errors.email && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.email.message}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="patient-notes">Notes <span className="font-normal text-muted-foreground">(optional)</span></Label>
-        <Textarea id="patient-notes" placeholder="Additional context about the patient…" {...form.register('notes')} />
-      </div>
+      </section>
 
       <div className="flex justify-end gap-2 border-t border-border pt-4">
         {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>}

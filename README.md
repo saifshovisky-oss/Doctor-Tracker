@@ -12,7 +12,7 @@ A Next.js App Router application implementing the full Doctor Tracker admin expe
 - Persistent, collapsible desktop sidebar (state saved locally), top bar with breadcrumbs and admin profile, responsive mobile drawer.
 - Dashboard with 4 KPI cards, 4 real aggregation-backed charts, date-range selection, recent patients and top doctors.
 - Doctors: searchable/filterable/sortable table, create/edit/delete, details page with contact info and associated patients, direct "add patient" action, relationship-safe delete confirmation.
-- Patients: searchable/filterable/sortable table, create/edit/delete, doctor selector, condition badges, graceful handling of missing contact details.
+- Patients: searchable/filterable/sortable table, create/edit/delete, full-width searchable doctor picker (server-side search), condition field with suggestions from real records, condition badges, graceful handling of missing contact details.
 - Shareable URL state (search, filters, pagination, sorting), debounced search, server-side pagination.
 - Polished loading, empty, error and success (toast) states throughout.
 
@@ -110,6 +110,8 @@ Real captures from the running application (seeded demo data, no mockups):
 | ![Dashboard desktop](./screenshots/dashboard-desktop.png) | ![Dashboard mobile](./screenshots/dashboard-mobile.png) |
 | ![Doctors desktop](./screenshots/doctors-desktop.png) | ![Doctors mobile](./screenshots/doctors-mobile.png) |
 | ![Patients desktop](./screenshots/patients-desktop.png) | ![Patients mobile](./screenshots/patients-mobile.png) |
+| ![Doctor details](./screenshots/doctor-details-desktop.png) | — |
+| ![Searchable doctor picker](./screenshots/searchable-doctor-dropdown.png) | — |
 
 Regenerate them with:
 

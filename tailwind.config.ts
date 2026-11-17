@@ -44,6 +44,8 @@ const config: Config = {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
         },
+        surface: 'hsl(var(--surface))',
+        ink: 'hsl(var(--ink))',
       },
       borderRadius: {
         lg: '0.5rem',
@@ -54,7 +56,8 @@ const config: Config = {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        panel: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.04)',
+        panel: '0 1px 2px 0 rgb(15 23 42 / 0.03)',
+        lift: '0 6px 20px -8px rgb(15 23 42 / 0.12)',
       },
       keyframes: {
         'accordion-down': {

@@ -61,7 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className={cn('transition-[padding-left] duration-200', collapsed ? 'lg:pl-16' : 'lg:pl-60')}>
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-white/95 px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-20 flex h-[68px] items-center gap-3 border-b border-border bg-white/95 px-4 backdrop-blur-sm sm:px-6">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
@@ -90,15 +90,21 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{currentTitle(pathname)}</p>
-            <nav aria-label="Breadcrumb" className="hidden text-xs text-muted-foreground sm:block">
-              Home / <span className="text-foreground">{currentTitle(pathname)}</span>
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-600" aria-hidden />
+              <p className="truncate text-sm font-semibold tracking-tight text-slate-900">{currentTitle(pathname)}</p>
+            </div>
+            <nav aria-label="Breadcrumb" className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
+              Home <span className="mx-1.5 text-slate-300">/</span> <span className="font-medium text-slate-600">{currentTitle(pathname)}</span>
             </nav>
           </div>
 
-          <div className="hidden items-center gap-2 rounded-md border border-border px-2.5 py-1.5 sm:flex">
-            <span className="h-2 w-2 rounded-full bg-teal-600" aria-hidden />
-            <span className="text-xs font-medium text-slate-600">Admin workspace</span>
+          <div className="hidden items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 sm:flex">
+            <span className="relative flex h-2 w-2" aria-hidden>
+              <span className="absolute inline-flex h-full w-full rounded-full bg-teal-400/60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-600" />
+            </span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">Live data</span>
           </div>
         </header>
 

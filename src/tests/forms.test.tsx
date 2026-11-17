@@ -14,6 +14,7 @@ vi.mock('@/lib/hooks/use-data', () => ({
     isPending: false,
     isError: false,
   }),
+  usePatientConditions: () => ({ data: ['Hypertension', 'Diabetes'], isPending: false }),
 }));
 
 import { DoctorForm } from '@/components/doctors/doctor-form';
@@ -54,7 +55,7 @@ describe('CRUD forms', () => {
     await waitFor(() => {
       expect(screen.getByText('Name is required')).toBeInTheDocument();
       expect(screen.getByText('Condition is required')).toBeInTheDocument();
-      expect(screen.getAllByText('Select a doctor').length).toBeGreaterThan(0);
+      expect(screen.getByText('Search and select a doctor')).toBeInTheDocument();
     });
     expect(createPatient).not.toHaveBeenCalled();
   });
@@ -62,6 +63,6 @@ describe('CRUD forms', () => {
   it('renders the doctor selector options', () => {
     render(<PatientForm />);
     expect(screen.getByLabelText('Assigned doctor')).toBeInTheDocument();
-    expect(screen.getByText('Select a doctor')).toBeInTheDocument();
+    expect(screen.getByText('Search and select a doctor')).toBeInTheDocument();
   });
 });

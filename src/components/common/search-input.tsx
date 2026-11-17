@@ -15,14 +15,14 @@ export function SearchInput({
   debounced?: boolean;
 }) {
   return (
-    <div className="relative w-full sm:w-72">
+    <div className="relative w-full sm:w-80">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         aria-label={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="pl-9 pr-8"
+        className="h-10 bg-white pl-9 pr-8"
       />
       {value && (
         <button

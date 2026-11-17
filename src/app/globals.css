@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
+    --background: 210 33% 97%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -21,8 +21,10 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --input: 214 32% 89%;
     --ring: 190 88% 32%;
+    --surface: 210 33% 98%;
+    --ink: 222 47% 11%;
     --font-sans: 'Inter';
   }
 
@@ -30,13 +32,42 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  ::selection {
+    @apply bg-teal-100 text-teal-900;
+  }
 }
 
 @layer utilities {
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+  }
+
+  .rule-label {
+    @apply flex items-center gap-3;
+  }
+
+  .rule-label::after {
+    content: '';
+    @apply h-px flex-1 bg-border;
+  }
+
+  .panel {
+    @apply rounded-lg border border-border bg-card;
+  }
+
+  .panel-muted {
+    @apply rounded-lg border border-border bg-[hsl(var(--surface))];
+  }
+
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }

@@ -15,6 +15,16 @@ import type { Doctor, DoctorFormValues } from '@/lib/types';
 
 const defaults: DoctorFormValues = { name: '', specialization: '', hospital: '', phone: '', email: '' };
 
+function Field({ label, id, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">{label}</Label>
+      <Input id={id} aria-invalid={!!error} {...props} />
+      {error && <p role="alert" className="text-xs text-rose-600">{error}</p>}
+    </div>
+  );
+}
+
 export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; onSuccess?: () => void; onCancel?: () => void }) {
   const create = useCreateDoctor();
   const update = useUpdateDoctor();
@@ -23,13 +33,7 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
   const form = useForm<DoctorFormValues>({
     resolver: zodResolver(doctorSchema),
     defaultValues: doctor
-      ? {
-          name: doctor.name,
-          specialization: doctor.specialization,
-          hospital: doctor.hospital,
-          phone: doctor.phone,
-          email: doctor.email,
-        }
+      ? { name: doctor.name, specialization: doctor.specialization, hospital: doctor.hospital, phone: doctor.phone, email: doctor.email }
       : defaults,
   });
 
@@ -61,37 +65,43 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
     }
   });
 
+  const errors = form.formState.errors;
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <div className="space-y-2">
-        <Label htmlFor="doctor-name">Full name</Label>
-        <Input id="doctor-name" placeholder="Dr. Jane Smith" aria-invalid={!!form.formState.errors.name} {...form.register('name')} />
-        {form.formState.errors.name && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.name.message}</p>}
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="doctor-specialization">Specialization</Label>
-          <Input id="doctor-specialization" placeholder="Cardiology" aria-invalid={!!form.formState.errors.specialization} {...form.register('specialization')} />
-          {form.formState.errors.specialization && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.specialization.message}</p>}
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">01</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Identity</span>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="doctor-hospital">Hospital</Label>
-          <Input id="doctor-hospital" placeholder="Central Hospital" aria-invalid={!!form.formState.errors.hospital} {...form.register('hospital')} />
-          {form.formState.errors.hospital && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.hospital.message}</p>}
+        <Field label="Full name" id="doctor-name" placeholder="Dr. Jane Smith" error={errors.name?.message} {...form.register('name')} />
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">02</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Practice</span>
         </div>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="doctor-email">Email address</Label>
-          <Input id="doctor-email" type="email" placeholder="jane@hospital.com" aria-invalid={!!form.formState.errors.email} {...form.register('email')} />
-          {form.formState.errors.email && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.email.message}</p>}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Specialization" id="doctor-specialization" placeholder="Cardiology" error={errors.specialization?.message} {...form.register('specialization')} />
+          <Field label="Hospital" id="doctor-hospital" placeholder="Central Hospital" error={errors.hospital?.message} {...form.register('hospital')} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="doctor-phone">Phone</Label>
-          <Input id="doctor-phone" placeholder="+1 555 123 4567" aria-invalid={!!form.formState.errors.phone} {...form.register('phone')} />
-          {form.formState.errors.phone && <p role="alert" className="text-xs text-rose-600">{form.formState.errors.phone.message}</p>}
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">03</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Contact</span>
         </div>
-      </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Email address" id="doctor-email" type="email" placeholder="jane@hospital.com" error={errors.email?.message} {...form.register('email')} />
+          <Field label="Phone" id="doctor-phone" placeholder="+1 555 123 4567" error={errors.phone?.message} {...form.register('phone')} />
+        </div>
+      </section>
+
       <div className="flex justify-end gap-2 border-t border-border pt-4">
         {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>}
         <Button type="submit" disabled={pending}>

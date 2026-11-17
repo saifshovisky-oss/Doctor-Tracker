@@ -13,7 +13,6 @@ import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { EmptyState } from '@/components/common/states';
 import { DoctorForm } from '@/components/doctors/doctor-form';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -169,13 +168,25 @@ export default function DoctorsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="Directory"
         title="Doctors"
         description="Manage doctor profiles, specializations and patient assignments."
         actions={<Button onClick={openCreate}><Plus className="h-4 w-4" /> Add doctor</Button>}
       />
 
-      <Card>
-        <div className="flex flex-col gap-3 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="panel overflow-hidden">
+        <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">Doctor directory</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {doctors.data ? `${doctors.data.totalItems} record${doctors.data.totalItems === 1 ? '' : 's'} found` : 'Loading records…'}
+            </p>
+          </div>
+          <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-600" /> Synced with Atlas
+          </span>
+        </div>
+        <div className="flex flex-col gap-3 border-b border-border bg-slate-50/60 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3 sm:flex-row">
             <SearchInput value={search} onChange={setSearch} placeholder="Search doctors…" debounced />
             <FilterDropdown
@@ -218,7 +229,7 @@ export default function DoctorsPage() {
             onPageChange={(page) => setParams({ page })}
           />
         )}
-      </Card>
+      </div>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl">

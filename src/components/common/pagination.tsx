@@ -20,10 +20,10 @@ export function Pagination({
   const to = Math.min(currentPage * limit, totalItems);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-xs text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{from}–{to}</span> of{' '}
-        <span className="font-medium text-foreground">{totalItems}</span>
+    <div className="flex flex-col gap-3 border-t border-border bg-slate-50/50 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-[11px] text-muted-foreground">
+        Showing <span className="font-semibold text-slate-700">{from}–{to}</span> of{' '}
+        <span className="font-semibold text-slate-700">{totalItems}</span>
       </p>
       <div className="flex items-center gap-2">
         <Button

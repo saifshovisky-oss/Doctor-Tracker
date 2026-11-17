@@ -22,28 +22,38 @@ const TOOLTIP_STYLE = {
   borderRadius: 6,
   border: '1px solid #e2e8f0',
   fontSize: 12,
-  boxShadow: '0 4px 12px rgb(15 23 42 / 0.08)',
+  boxShadow: '0 8px 20px -10px rgb(15 23 42 / 0.25)',
+  padding: '8px 10px',
 };
 const COLORS = ['#0f766e', '#0284c7', '#4f46e5', '#d97706', '#e11d48', '#64748b', '#0891b2', '#7c3aed'];
 
 export function PatientTrendChart({ data }: { data: TrendPoint[] }) {
   if (!data.length) return <EmptyState title="No registration data" description="Patient registrations will appear here once records are added." />;
   return (
-    <ResponsiveContainer width="100%" height={260}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-        <defs>
-          <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0d9488" stopOpacity={0.18} />
-            <stop offset="100%" stopColor="#0d9488" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" />
-        <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={false} />
-        <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [`${value} patients`, 'Registrations']} />
-        <Area type="monotone" dataKey="count" stroke="#0f766e" strokeWidth={2} fill="url(#trendFill)" dot={{ r: 3, fill: '#0f766e' }} activeDot={{ r: 5 }} />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <span className="h-2 w-2 rounded-full bg-teal-600" />
+        Patient registrations
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" />
+          <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={false} dy={8} />
+          <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [`${value} patients`, 'Registrations']} cursor={{ stroke: '#cbd5e1', strokeDasharray: '3 3' }} />
+          <Area
+            type="monotone"
+            dataKey="count"
+            stroke="#0f766e"
+            strokeWidth={2.5}
+            fill="#0d9488"
+            fillOpacity={0.1}
+            dot={{ r: 3, fill: '#0f766e', strokeWidth: 0 }}
+            activeDot={{ r: 5, fill: '#0f766e', stroke: '#fff', strokeWidth: 2 }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -51,15 +61,26 @@ export function PatientsPerDoctorChart({ data }: { data: DoctorCount[] }) {
   if (!data.length) return <EmptyState title="No doctor assignments" description="Assign patients to doctors to see this breakdown." />;
   const chartData = data.map((item) => ({ name: item.name.split(' ').slice(-1)[0], full: item.name, value: item.count }));
   return (
-    <ResponsiveContainer width="100%" height={260}>
-      <BarChart data={chartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" />
-        <XAxis dataKey="name" tick={AXIS} tickLine={false} axisLine={false} />
-        <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [`${value} patients`, 'Patients']} labelFormatter={(_, payload) => String(payload?.[0]?.payload?.full ?? '')} />
-        <Bar dataKey="value" fill="#0f766e" radius={[3, 3, 0, 0]} maxBarSize={44} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <span className="h-2 w-2 rounded-full bg-teal-600" />
+        Assigned patients
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={chartData} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eef2f6" />
+          <XAxis dataKey="name" tick={AXIS} tickLine={false} axisLine={false} dy={8} />
+          <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
+          <Tooltip
+            contentStyle={TOOLTIP_STYLE}
+            cursor={{ fill: '#f1f5f9' }}
+            formatter={(value) => [`${value} patients`, 'Patients']}
+            labelFormatter={(_, payload) => String(payload?.[0]?.payload?.full ?? '')}
+          />
+          <Bar dataKey="value" fill="#0f766e" radius={[3, 3, 0, 0]} maxBarSize={44} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 

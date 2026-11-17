@@ -47,11 +47,11 @@ export function ConfirmDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg border ${destructive ? 'border-rose-200 bg-rose-50' : 'border-border bg-slate-50'}`}>
-            <AlertTriangle className={`h-5 w-5 ${destructive ? 'text-rose-600' : 'text-muted-foreground'}`} />
+          <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-md border ${destructive ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-slate-50'}`}>
+            <AlertTriangle className={`h-5 w-5 ${destructive ? 'text-rose-600' : 'text-slate-500'}`} strokeWidth={1.8} />
           </div>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription asChild><div>{description}</div></DialogDescription>
+          <DialogDescription asChild><div className="leading-relaxed">{description}</div></DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>Cancel</Button>

@@ -60,7 +60,7 @@ export function DateRangeFilter({
           value={startDate ?? ''}
           max={endDate}
           onChange={(event) => onChange({ startDate: event.target.value || undefined })}
-          className="h-9 w-[130px] text-xs sm:w-[145px]"
+          className="h-10 w-[130px] bg-white text-xs sm:w-[145px]"
         />
       </div>
       <span className="text-muted-foreground">–</span>
@@ -73,7 +73,7 @@ export function DateRangeFilter({
           value={endDate ?? ''}
           min={startDate}
           onChange={(event) => onChange({ endDate: event.target.value || undefined })}
-          className="h-9 w-[130px] text-xs sm:w-[145px]"
+          className="h-10 w-[130px] bg-white text-xs sm:w-[145px]"
         />
       </div>
     </div>

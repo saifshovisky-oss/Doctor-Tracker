@@ -12,6 +12,7 @@ export const queryKeys = {
   specializations: ['doctor-specializations'] as const,
   patients: (params?: ListParams) => ['patients', params] as const,
   patient: (id: string) => ['patient', id] as const,
+  conditions: ['patient-conditions'] as const,
   dashboard: ['dashboard'] as const,
 };
 
@@ -22,6 +23,7 @@ function useInvalidate() {
     void client.invalidateQueries({ queryKey: ['patients'] });
     void client.invalidateQueries({ queryKey: ['dashboard'] });
     void client.invalidateQueries({ queryKey: queryKeys.specializations });
+    void client.invalidateQueries({ queryKey: queryKeys.conditions });
   };
 }
 
@@ -62,6 +64,10 @@ export function usePatientsPerDoctor() {
 
 export function useConditions() {
   return useQuery({ queryKey: [...queryKeys.dashboard, 'conditions'], queryFn: dashboardApi.conditions });
+}
+
+export function usePatientConditions() {
+  return useQuery({ queryKey: queryKeys.conditions, queryFn: patientsApi.conditions });
 }
 
 export function useSpecializationDistribution() {

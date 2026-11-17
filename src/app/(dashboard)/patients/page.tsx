@@ -10,8 +10,8 @@ import { SearchInput } from '@/components/common/search-input';
 import { DateRangeFilter, FilterDropdown } from '@/components/common/filters';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { PatientForm } from '@/components/patients/patient-form';
+import { DoctorCombobox } from '@/components/doctors/doctor-combobox';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useListParams } from '@/lib/hooks/use-list-params';
-import { useConditions, useDeletePatient, useDoctors, usePatients } from '@/lib/hooks/use-data';
+import { useConditions, useDeletePatient, usePatients } from '@/lib/hooks/use-data';
 import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
@@ -38,7 +38,6 @@ export default function PatientsPage() {
 
   const queryParams = { ...params, search: debouncedSearch || undefined };
   const patients = usePatients(queryParams);
-  const doctors = useDoctors({ page: 1, limit: 100, sortBy: 'name', sortOrder: 'asc' });
   const conditions = useConditions();
   const remove = useDeletePatient();
 
@@ -165,13 +164,25 @@ export default function PatientsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow="Records"
         title="Patients"
         description="Manage patient records, conditions and doctor assignments."
         actions={<Button onClick={openCreate}><Plus className="h-4 w-4" /> Add patient</Button>}
       />
 
-      <Card>
-        <div className="flex flex-col gap-3 border-b border-border p-4 xl:flex-row xl:items-center xl:justify-between">
+      <div className="panel overflow-hidden">
+        <div className="flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">Patient records</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {patients.data ? `${patients.data.totalItems} record${patients.data.totalItems === 1 ? '' : 's'} found` : 'Loading records…'}
+            </p>
+          </div>
+          <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-600" /> Synced with Atlas
+          </span>
+        </div>
+        <div className="flex flex-col gap-3 border-b border-border bg-slate-50/60 p-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col gap-3 sm:flex-row">
             <SearchInput value={search} onChange={setSearch} placeholder="Search patients…" debounced />
             <FilterDropdown
@@ -181,13 +192,14 @@ export default function PatientsPage() {
               options={(conditions.data ?? []).map((c) => ({ value: c.name, label: `${c.name} (${c.value})` }))}
               placeholder="All conditions"
             />
-            <FilterDropdown
-              label="Filter by doctor"
-              value={params.doctorId}
-              onChange={(value) => setParams({ doctorId: value })}
-              options={(doctors.data?.data ?? []).map((d) => ({ value: d.id, label: d.name }))}
-              placeholder="All doctors"
-            />
+            <div className="w-full sm:w-56">
+              <DoctorCombobox
+                id="filter-doctor"
+                value={params.doctorId}
+                onChange={(value) => setParams({ doctorId: value || undefined })}
+                clearable
+              />
+            </div>
           </div>
           <DateRangeFilter
             startDate={params.startDate}
@@ -221,7 +233,7 @@ export default function PatientsPage() {
             onPageChange={(page) => setParams({ page })}
           />
         )}
-      </Card>
+      </div>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-2xl">

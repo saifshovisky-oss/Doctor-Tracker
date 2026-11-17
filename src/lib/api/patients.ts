@@ -8,4 +8,5 @@ export const patientsApi = {
   create: (values: PatientFormValues) => api.post<Patient>('/patients', values),
   update: (id: string, values: Partial<PatientFormValues>) => api.patch<Patient>(`/patients/${id}`, values),
   delete: (id: string) => api.delete<{ id: string }>(`/patients/${id}`),
+  conditions: () => api.get<string[]>('/patients/conditions'),
 };

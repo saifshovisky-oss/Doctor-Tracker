@@ -56,7 +56,7 @@ export function DataTable<T>({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="hover:bg-slate-50/80">
+        <TableRow className="hover:bg-transparent">
           {columns.map((column) => {
             const sortable = !!column.sortKey && !!onSort;
             const active = sortBy === column.sortKey;
