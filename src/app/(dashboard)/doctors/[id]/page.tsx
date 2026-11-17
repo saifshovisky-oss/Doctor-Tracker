@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Building2,
@@ -13,6 +14,7 @@ import {
   Phone,
   Plus,
   Stethoscope,
+  Trash2,
   UserPlus,
   UsersRound,
 } from 'lucide-react';
@@ -22,11 +24,12 @@ import { EmptyState, ErrorState, LoadingSkeleton } from '@/components/common/sta
 import { PatientForm } from '@/components/patients/patient-form';
 import { DoctorForm } from '@/components/doctors/doctor-form';
 import { StatCard } from '@/components/common/stat-card';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useDoctor, usePatients } from '@/lib/hooks/use-data';
+import { useDeletePatient, useDoctor, usePatients } from '@/lib/hooks/use-data';
 import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
 
@@ -35,6 +38,7 @@ export default function DoctorDetailsPage() {
   const id = params.id;
   const doctor = useDoctor(id);
   const patients = usePatients({ page: 1, limit: 50, doctorId: id, sortBy: 'createdAt', sortOrder: 'desc' });
+  const removePatient = useDeletePatient();
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -66,6 +70,30 @@ export default function DoctorDetailsPage() {
       key: 'createdAt',
       header: 'Registered',
       cell: (patient) => <span className="whitespace-nowrap text-[11px] text-muted-foreground">{formatDate(patient.createdAt)}</span>,
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      headClassName: 'w-12',
+      cell: (patient) => (
+        <ConfirmDialog
+          trigger={
+            <Button variant="ghost" size="icon" aria-label={`Delete ${patient.name}`} title="Delete patient">
+              <Trash2 className="h-4 w-4 text-rose-600" />
+            </Button>
+          }
+          title="Delete patient?"
+          description={<>Remove <strong>{patient.name}</strong> from this doctor's list? This action cannot be undone.</>}
+          confirmLabel="Delete patient"
+          destructive
+          onConfirm={async () => {
+            await removePatient.mutateAsync(patient.id);
+            toast.success(`${patient.name} was deleted`);
+            void patients.refetch();
+            void doctor.refetch();
+          }}
+        />
+      ),
     },
   ];
 
