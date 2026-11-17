@@ -1,0 +1,244 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { PageHeader } from '@/components/common/page-header';
+import { DataTable, type Column } from '@/components/common/data-table';
+import { Pagination } from '@/components/common/pagination';
+import { SearchInput } from '@/components/common/search-input';
+import { DateRangeFilter, FilterDropdown } from '@/components/common/filters';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { PatientForm } from '@/components/patients/patient-form';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useDebounce } from '@/lib/hooks/use-debounce';
+import { useListParams } from '@/lib/hooks/use-list-params';
+import { useConditions, useDeletePatient, useDoctors, usePatients } from '@/lib/hooks/use-data';
+import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
+import type { Patient } from '@/lib/types';
+import { useSearchParams } from 'next/navigation';
+
+export default function PatientsPage() {
+  const { params, setParams } = useListParams();
+  const urlParams = useSearchParams();
+  const [search, setSearch] = useState(params.search ?? '');
+  const debouncedSearch = useDebounce(search, 350);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Patient | undefined>();
+
+  const queryParams = { ...params, search: debouncedSearch || undefined };
+  const patients = usePatients(queryParams);
+  const doctors = useDoctors({ page: 1, limit: 100, sortBy: 'name', sortOrder: 'asc' });
+  const conditions = useConditions();
+  const remove = useDeletePatient();
+
+  useEffect(() => {
+    if (debouncedSearch !== (params.search ?? '')) {
+      setParams({ search: debouncedSearch || undefined });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  // Deep link from doctor details: ?doctorId=…&add=true
+  useEffect(() => {
+    if (urlParams.get('add') === 'true') {
+      setFormOpen(true);
+      setParams({ add: undefined } as never);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParams]);
+
+  const openCreate = () => {
+    setEditing(undefined);
+    setFormOpen(true);
+  };
+
+  const openEdit = (patient: Patient) => {
+    setEditing(patient);
+    setFormOpen(true);
+  };
+
+  const handleDelete = async (patient: Patient) => {
+    try {
+      await remove.mutateAsync(patient.id);
+      toast.success(`${patient.name} was deleted`);
+    } catch (error) {
+      toast.error(errorMessage(error));
+      throw error;
+    }
+  };
+
+  const handleSort = (key: string) => {
+    setParams({
+      sortBy: key,
+      sortOrder: params.sortBy === key && params.sortOrder === 'desc' ? 'asc' : 'desc',
+    });
+  };
+
+  const columns: Column<Patient>[] = [
+    {
+      key: 'name',
+      header: 'Patient',
+      sortKey: 'name',
+      cell: (patient) => (
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarFallback className={avatarColor(patient.name)}>{initials(patient.name)}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{patient.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{patient.email ?? patient.phone ?? 'No contact details'}</p>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'age', header: 'Age', sortKey: 'age', cell: (p) => <span className="text-sm text-slate-600">{p.age ?? '—'}</span> },
+    {
+      key: 'gender',
+      header: 'Gender',
+      cell: (p) => <span className="text-sm capitalize text-slate-600">{p.gender ?? '—'}</span>,
+    },
+    {
+      key: 'condition',
+      header: 'Condition',
+      sortKey: 'condition',
+      cell: (p) => <Badge variant={conditionTone(p.condition)}>{p.condition}</Badge>,
+    },
+    {
+      key: 'doctor',
+      header: 'Assigned doctor',
+      sortKey: 'doctorName',
+      cell: (p) => (
+        <div className="min-w-0">
+          <p className="truncate text-sm text-slate-700">{p.doctorName ?? '—'}</p>
+          <p className="truncate text-xs text-muted-foreground">{p.doctorSpecialization}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Registered',
+      sortKey: 'createdAt',
+      cell: (p) => <span className="whitespace-nowrap text-xs text-muted-foreground">{formatDate(p.createdAt)}</span>,
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      headClassName: 'w-12',
+      cell: (patient) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label={`Actions for ${patient.name}`}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => openEdit(patient)}><Pencil className="h-4 w-4" /> Edit</DropdownMenuItem>
+            <ConfirmDialog
+              trigger={
+                <div role="menuitem" tabIndex={0} className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-rose-600 outline-none transition-colors focus:bg-rose-50">
+                  <Trash2 className="h-4 w-4" /> Delete
+                </div>
+              }
+              title="Delete patient?"
+              description={<>Are you sure you want to delete <strong>{patient.name}</strong>? This action cannot be undone.</>}
+              confirmLabel="Delete patient"
+              destructive
+              onConfirm={() => handleDelete(patient)}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Patients"
+        description="Manage patient records, conditions and doctor assignments."
+        actions={<Button onClick={openCreate}><Plus className="h-4 w-4" /> Add patient</Button>}
+      />
+
+      <Card>
+        <div className="flex flex-col gap-3 border-b border-border p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <SearchInput value={search} onChange={setSearch} placeholder="Search patients…" debounced />
+            <FilterDropdown
+              label="Filter by condition"
+              value={params.condition}
+              onChange={(value) => setParams({ condition: value })}
+              options={(conditions.data ?? []).map((c) => ({ value: c.name, label: `${c.name} (${c.value})` }))}
+              placeholder="All conditions"
+            />
+            <FilterDropdown
+              label="Filter by doctor"
+              value={params.doctorId}
+              onChange={(value) => setParams({ doctorId: value })}
+              options={(doctors.data?.data ?? []).map((d) => ({ value: d.id, label: d.name }))}
+              placeholder="All doctors"
+            />
+          </div>
+          <DateRangeFilter
+            startDate={params.startDate}
+            endDate={params.endDate}
+            onChange={(values) => setParams(values)}
+          />
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={patients.data?.data ?? []}
+          rowKey={(row) => row.id}
+          isLoading={patients.isPending}
+          error={patients.error}
+          onRetry={() => void patients.refetch()}
+          sortBy={params.sortBy}
+          sortOrder={params.sortOrder}
+          onSort={handleSort}
+          errorMessage={errorMessage(patients.error)}
+          emptyTitle={debouncedSearch || params.condition || params.doctorId ? 'No patients match your filters' : 'No patients yet'}
+          emptyDescription={debouncedSearch || params.condition || params.doctorId ? 'Try a different search term or clear the filters.' : 'Add your first patient to start tracking records.'}
+          emptyAction={<Button onClick={openCreate}><Plus className="h-4 w-4" /> Add patient</Button>}
+        />
+
+        {patients.data && patients.data.totalItems > 0 && (
+          <Pagination
+            currentPage={patients.data.currentPage}
+            totalPages={patients.data.totalPages}
+            totalItems={patients.data.totalItems}
+            limit={patients.data.limit}
+            onPageChange={(page) => setParams({ page })}
+          />
+        )}
+      </Card>
+
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit patient' : 'Add a new patient'}</DialogTitle>
+            <DialogDescription>
+              {editing ? 'Update this patient record.' : 'Fill in the details to register a new patient.'}
+            </DialogDescription>
+          </DialogHeader>
+          <PatientForm
+            patient={editing}
+            defaultDoctorId={params.doctorId}
+            onSuccess={() => setFormOpen(false)}
+            onCancel={() => setFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
