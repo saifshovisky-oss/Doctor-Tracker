@@ -9,7 +9,7 @@ A Next.js App Router application implementing the full Doctor Tracker admin expe
 ## 2. Features
 
 - Professional split-screen login with validation, password visibility toggle and error/loading states.
-- Persistent desktop sidebar, top bar with breadcrumbs and admin profile, responsive mobile drawer.
+- Persistent, collapsible desktop sidebar (state saved locally), top bar with breadcrumbs and admin profile, responsive mobile drawer.
 - Dashboard with 4 KPI cards, 4 real aggregation-backed charts, date-range selection, recent patients and top doctors.
 - Doctors: searchable/filterable/sortable table, create/edit/delete, details page with contact info and associated patients, direct "add patient" action, relationship-safe delete confirmation.
 - Patients: searchable/filterable/sortable table, create/edit/delete, doctor selector, condition badges, graceful handling of missing contact details.

@@ -2,13 +2,14 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { SidebarContent } from './sidebar';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Spinner } from '@/components/common/states';
 import { useAuth } from '@/components/providers/auth-provider';
 import { navItems } from './nav-items';
+import { cn } from '@/lib/utils';
 
 function currentTitle(pathname: string): string {
   return navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label ?? 'Dashboard';
@@ -19,6 +20,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem('dt-sidebar-collapsed');
+    if (stored === 'true') setCollapsed(true);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('dt-sidebar-collapsed', String(collapsed));
+  }, [collapsed]);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -40,11 +51,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-border bg-white lg:block">
-        <SidebarContent />
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-30 hidden border-r border-border bg-white transition-[width] duration-200 lg:block',
+          collapsed ? 'w-16' : 'w-60',
+        )}
+      >
+        <SidebarContent collapsed={collapsed} />
       </aside>
 
-      <div className="lg:pl-60">
+      <div className={cn('transition-[padding-left] duration-200', collapsed ? 'lg:pl-16' : 'lg:pl-60')}>
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-white/95 px-4 backdrop-blur sm:px-6">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -61,6 +77,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               <SidebarContent onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
+
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!collapsed}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="hidden rounded-md p-2 text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground lg:inline-flex"
+          >
+            {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+          </button>
 
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">{currentTitle(pathname)}</p>
