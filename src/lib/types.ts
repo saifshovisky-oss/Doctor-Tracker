@@ -13,6 +13,7 @@ export interface Doctor {
   phone: string;
   email: string;
   patientCount: number;
+  hasPhoto: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +29,7 @@ export interface Patient {
   doctorId: string;
   doctorName?: string;
   doctorSpecialization?: string;
+  hasPhoto: boolean;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -83,6 +85,24 @@ export interface PatientFormValues {
   condition: string;
   doctorId: string;
   notes?: string;
+}
+
+export interface Condition {
+  id: string;
+  name: string;
+  patientCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConditionFormValues {
+  name: string;
+}
+
+export interface PhotoMutationResult {
+  id: string;
+  hasPhoto: boolean;
+  updatedAt: string;
 }
 
 export interface ListParams {

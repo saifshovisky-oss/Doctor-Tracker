@@ -1,9 +1,19 @@
 'use client';
 
 import { Combobox } from '@/components/ui/combobox';
-import { usePatientConditions } from '@/lib/hooks/use-data';
+import { useConditionsCatalog, usePatientConditions } from '@/lib/hooks/use-data';
 
-/** Condition field with suggestions from real patient records, while still allowing new values. */
+/**
+ * Condition field for the patient form.
+ *
+ * Suggestions come from two sources merged together:
+ *   1. The managed Conditions catalog (GET /conditions) — the curated list.
+ *   2. Any distinct condition strings already used on patient records
+ *      (GET /patients/conditions) — catches values that pre-date the catalog.
+ *
+ * The combobox still allows free-text entry so an admin can type a new value
+ * that isn't in the catalog yet.
+ */
 export function ConditionCombobox({
   value,
   onChange,
@@ -15,14 +25,31 @@ export function ConditionCombobox({
   invalid?: boolean;
   id?: string;
 }) {
-  const { data, isPending } = usePatientConditions();
+  const catalogQuery = useConditionsCatalog({ page: 1, limit: 100, sortBy: 'name', sortOrder: 'asc' });
+  const legacyQuery = usePatientConditions();
+
+  // Merge catalog names with any legacy patient-condition strings, deduped
+  // case-insensitively so we never show the same condition twice.
+  const catalogNames = new Set(
+    (catalogQuery.data?.data ?? []).map((c) => c.name.toLowerCase()),
+  );
+  const catalogOptions = (catalogQuery.data?.data ?? []).map((c) => ({
+    value: c.name,
+    label: c.name,
+  }));
+  const legacyOptions = (legacyQuery.data ?? [])
+    .filter((name) => !catalogNames.has(name.toLowerCase()))
+    .map((name) => ({ value: name, label: name }));
+
+  const options = [...catalogOptions, ...legacyOptions];
+  const isPending = catalogQuery.isPending;
 
   return (
     <Combobox
       id={id}
       value={value}
       onChange={onChange}
-      options={(data ?? []).map((condition) => ({ value: condition, label: condition }))}
+      options={options}
       selectedLabel={value}
       placeholder="Select or type a condition"
       searchPlaceholder="Search conditions or type a new one…"

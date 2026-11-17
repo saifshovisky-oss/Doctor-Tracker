@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Activity, ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { Spinner } from '@/components/common/states';
 import { useAuth } from '@/components/providers/auth-provider';
 import { ApiClientError } from '@/lib/api/client';
 import { loginSchema, type LoginFormValues } from '@/lib/validators';
+import { DtLogo, DtLogoWhite } from '@/components/brand/dt-logo';
+import { DoctorsIcon, InsightsIcon, PatientsIcon } from '@/components/brand/dt-icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,13 +56,7 @@ export default function LoginPage() {
           aria-hidden
         />
         <div className="relative flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-teal-600">
-            <Activity className="h-5 w-5" strokeWidth={2} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold tracking-tight">Doctor Tracker</p>
-            <p className="text-[11px] text-slate-400">Healthcare administration</p>
-          </div>
+          <DtLogoWhite className="h-10 w-auto" />
         </div>
 
         <div className="relative max-w-lg space-y-7">
@@ -77,11 +73,12 @@ export default function LoginPage() {
           </p>
           <div className="grid max-w-md grid-cols-3 gap-0 border-t border-white/10 pt-6">
             {[
-              ['Doctors', 'Profiles & patients'],
-              ['Patients', 'Records & conditions'],
-              ['Insights', 'Real-time analytics'],
-            ].map(([title, subtitle], index) => (
+              { title: 'Doctors', subtitle: 'Profiles & patients', Icon: DoctorsIcon },
+              { title: 'Patients', subtitle: 'Records & conditions', Icon: PatientsIcon },
+              { title: 'Insights', subtitle: 'Real-time analytics', Icon: InsightsIcon },
+            ].map(({ title, subtitle, Icon }, index) => (
               <div key={title} className={index > 0 ? 'border-l border-white/10 pl-5' : undefined}>
+                <Icon className="mb-2 h-7 w-7 text-teal-300 opacity-80" />
                 <p className="text-base font-semibold">{title}</p>
                 <p className="mt-1 text-[11px] text-slate-400">{subtitle}</p>
               </div>
@@ -95,10 +92,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center bg-white px-6 py-12 sm:px-12">
         <div className="w-full max-w-[380px] space-y-8">
           <div className="flex items-center gap-2.5 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-700 text-white">
-              <Activity className="h-5 w-5" />
-            </div>
-            <p className="text-sm font-semibold">Doctor Tracker</p>
+            <DtLogo className="h-9 w-auto" />
           </div>
 
           <div className="space-y-2">

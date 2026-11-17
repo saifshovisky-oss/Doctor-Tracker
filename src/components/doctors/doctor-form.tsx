@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PhotoField } from '@/components/common/photo-field';
 import { Spinner } from '@/components/common/states';
 import { doctorSchema } from '@/lib/validators';
+import { doctorsApi } from '@/lib/api/doctors';
 import { useCreateDoctor, useUpdateDoctor } from '@/lib/hooks/use-data';
 import { errorMessage } from '@/lib/utils';
 import type { Doctor, DoctorFormValues } from '@/lib/types';
@@ -28,7 +31,9 @@ function Field({ label, id, error, ...props }: React.InputHTMLAttributes<HTMLInp
 export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; onSuccess?: () => void; onCancel?: () => void }) {
   const create = useCreateDoctor();
   const update = useUpdateDoctor();
+  const queryClient = useQueryClient();
   const pending = create.isPending || update.isPending;
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const form = useForm<DoctorFormValues>({
     resolver: zodResolver(doctorSchema),
@@ -55,10 +60,16 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
         await update.mutateAsync({ id: doctor.id, values });
         toast.success('Doctor updated successfully');
       } else {
-        await create.mutateAsync(values);
+        const created = await create.mutateAsync(values);
+        if (pendingFile) {
+          await doctorsApi.uploadPhoto(created.id, pendingFile);
+          await queryClient.invalidateQueries({ queryKey: ['doctors'] });
+          await queryClient.invalidateQueries({ queryKey: ['doctor', created.id] });
+        }
         toast.success('Doctor added successfully');
       }
       form.reset(defaults);
+      setPendingFile(null);
       onSuccess?.();
     } catch (error) {
       toast.error(errorMessage(error));
@@ -69,6 +80,23 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">Photo</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Profile picture</span>
+        </div>
+        <PhotoField
+          kind="doctors"
+          id={doctor?.id}
+          name={form.watch('name') || doctor?.name || 'New doctor'}
+          hasPhoto={doctor?.hasPhoto}
+          version={doctor?.updatedAt}
+          pendingFile={pendingFile}
+          onPendingFileChange={setPendingFile}
+        />
+      </section>
+
       <section className="space-y-4">
         <div className="flex items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">01</span>

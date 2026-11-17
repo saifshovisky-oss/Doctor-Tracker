@@ -32,4 +32,8 @@ export const patientSchema = z.object({
   notes: z.string().trim().max(2000).optional(),
 });
 
+export const conditionSchema = z.object({
+  name: z.string().trim().min(1, 'Condition is required').max(150, 'Condition is too long'),
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;

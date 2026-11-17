@@ -25,12 +25,12 @@ import { PatientForm } from '@/components/patients/patient-form';
 import { DoctorForm } from '@/components/doctors/doctor-form';
 import { StatCard } from '@/components/common/stat-card';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { EntityAvatar } from '@/components/common/entity-avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useDeletePatient, useDoctor, usePatients } from '@/lib/hooks/use-data';
-import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
+import { avatarColor, conditionTone, errorMessage, formatDate } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
 
 export default function DoctorDetailsPage() {
@@ -54,9 +54,15 @@ export default function DoctorDetailsPage() {
       header: 'Patient',
       cell: (patient) => (
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className={`text-[10px] ${avatarColor(patient.name)}`}>{initials(patient.name)}</AvatarFallback>
-          </Avatar>
+          <EntityAvatar
+            kind="patients"
+            id={patient.id}
+            name={patient.name}
+            hasPhoto={patient.hasPhoto}
+            version={patient.updatedAt}
+            className="h-8 w-8"
+            fallbackClassName={`text-[10px] rounded-full`}
+          />
           <div className="min-w-0">
             <p className="truncate text-[13px] font-semibold text-slate-800">{patient.name}</p>
             <p className="truncate text-[11px] text-muted-foreground">{patient.email ?? patient.phone ?? 'No contact details'}</p>
@@ -125,11 +131,15 @@ export default function DoctorDetailsPage() {
         <div className="absolute inset-y-0 left-0 w-1 bg-teal-600" aria-hidden />
         <div className="grid gap-6 p-6 pl-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:p-7 lg:pl-8">
           <div className="flex items-start gap-5">
-            <Avatar className="h-[76px] w-[76px] rounded-md border border-slate-200">
-              <AvatarFallback className={`rounded-md text-2xl font-semibold ${avatarColor(record.name)}`}>
-                {initials(record.name)}
-              </AvatarFallback>
-            </Avatar>
+            <EntityAvatar
+              kind="doctors"
+              id={record.id}
+              name={record.name}
+              hasPhoto={record.hasPhoto}
+              version={record.updatedAt}
+              className="h-[76px] w-[76px] rounded-md border border-slate-200"
+              fallbackClassName={`rounded-md text-2xl font-semibold ${avatarColor(record.name)}`}
+            />
             <div className="min-w-0 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl font-semibold tracking-tight text-slate-900">{record.name}</h2>

@@ -9,11 +9,11 @@ import { Pagination } from '@/components/common/pagination';
 import { SearchInput } from '@/components/common/search-input';
 import { DateRangeFilter, FilterDropdown } from '@/components/common/filters';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { EntityAvatar } from '@/components/common/entity-avatar';
 import { PatientForm } from '@/components/patients/patient-form';
 import { DoctorCombobox } from '@/components/doctors/doctor-combobox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -24,7 +24,7 @@ import {
 import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useListParams } from '@/lib/hooks/use-list-params';
 import { useConditions, useDeletePatient, usePatients } from '@/lib/hooks/use-data';
-import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
+import { conditionTone, errorMessage, formatDate } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
 
@@ -91,9 +91,7 @@ export default function PatientsPage() {
       sortKey: 'name',
       cell: (patient) => (
         <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className={avatarColor(patient.name)}>{initials(patient.name)}</AvatarFallback>
-          </Avatar>
+          <EntityAvatar kind="patients" id={patient.id} name={patient.name} hasPhoto={patient.hasPhoto} version={patient.updatedAt} />
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{patient.name}</p>
             <p className="truncate text-xs text-muted-foreground">{patient.email ?? patient.phone ?? 'No contact details'}</p>

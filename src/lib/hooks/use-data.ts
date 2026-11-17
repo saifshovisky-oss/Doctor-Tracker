@@ -2,9 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dashboardApi } from '@/lib/api/dashboard';
+import { conditionsApi } from '@/lib/api/conditions';
 import { doctorsApi } from '@/lib/api/doctors';
 import { patientsApi } from '@/lib/api/patients';
-import type { DoctorFormValues, ListParams, PatientFormValues } from '@/lib/types';
+import type { ConditionFormValues, DoctorFormValues, ListParams, PatientFormValues } from '@/lib/types';
 
 export const queryKeys = {
   doctors: (params?: ListParams) => ['doctors', params] as const,
@@ -13,6 +14,7 @@ export const queryKeys = {
   patients: (params?: ListParams) => ['patients', params] as const,
   patient: (id: string) => ['patient', id] as const,
   conditions: ['patient-conditions'] as const,
+  conditionsCatalog: (params?: ListParams) => ['conditions', params] as const,
   dashboard: ['dashboard'] as const,
 };
 
@@ -24,6 +26,7 @@ function useInvalidate() {
     void client.invalidateQueries({ queryKey: ['dashboard'] });
     void client.invalidateQueries({ queryKey: queryKeys.specializations });
     void client.invalidateQueries({ queryKey: queryKeys.conditions });
+    void client.invalidateQueries({ queryKey: ['conditions'] });
   };
 }
 
@@ -124,4 +127,66 @@ export function useDeletePatient() {
     mutationFn: (id: string) => patientsApi.delete(id),
     onSuccess: invalidate,
   });
+}
+
+/* Conditions catalog */
+
+export function useConditionsCatalog(params: ListParams) {
+  return useQuery({ queryKey: queryKeys.conditionsCatalog(params), queryFn: () => conditionsApi.list(params) });
+}
+
+export function useCreateCondition() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (values: ConditionFormValues) => conditionsApi.create(values),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateCondition() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ id, values }: { id: string; values: ConditionFormValues }) => conditionsApi.update(id, values),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteCondition() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (id: string) => conditionsApi.delete(id),
+    onSuccess: invalidate,
+  });
+}
+
+/* Photos */
+
+/** Invalidate everything that shows an avatar after a photo changes. */
+function useInvalidatePhoto(id: string, owner: 'doctors' | 'patients') {
+  const client = useQueryClient();
+  return () => {
+    void client.invalidateQueries({ queryKey: [owner] });
+    void client.invalidateQueries({ queryKey: owner === 'doctors' ? queryKeys.doctor(id) : queryKeys.patient(id) });
+    void client.invalidateQueries({ queryKey: ['dashboard'] });
+  };
+}
+
+export function useUploadDoctorPhoto(id: string) {
+  const invalidate = useInvalidatePhoto(id, 'doctors');
+  return useMutation({ mutationFn: (file: File) => doctorsApi.uploadPhoto(id, file), onSuccess: invalidate });
+}
+
+export function useDeleteDoctorPhoto(id: string) {
+  const invalidate = useInvalidatePhoto(id, 'doctors');
+  return useMutation({ mutationFn: () => doctorsApi.deletePhoto(id), onSuccess: invalidate });
+}
+
+export function useUploadPatientPhoto(id: string) {
+  const invalidate = useInvalidatePhoto(id, 'patients');
+  return useMutation({ mutationFn: (file: File) => patientsApi.uploadPhoto(id, file), onSuccess: invalidate });
+}
+
+export function useDeletePatientPhoto(id: string) {
+  const invalidate = useInvalidatePhoto(id, 'patients');
+  return useMutation({ mutationFn: () => patientsApi.deletePhoto(id), onSuccess: invalidate });
 }

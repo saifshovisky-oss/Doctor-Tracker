@@ -8,20 +8,18 @@ import {
   ArrowUpRight,
   CalendarRange,
   ClipboardList,
-  HeartPulse,
   RefreshCw,
   Stethoscope,
-  UserPlus,
-  UsersRound,
 } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { StatCard } from '@/components/common/stat-card';
 import { ChartCard } from '@/components/dashboard/chart-card';
 import { EmptyState, ErrorState, LoadingSkeleton, Spinner } from '@/components/common/states';
+import { EntityAvatar } from '@/components/common/entity-avatar';
+import { DoctorsIcon, InsightsIcon, PatientsIcon } from '@/components/brand/dt-icons';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/providers/auth-provider';
 import {
   useConditions,
@@ -31,7 +29,7 @@ import {
   useRecentPatients,
   useSpecializationDistribution,
 } from '@/lib/hooks/use-data';
-import { avatarColor, conditionTone, errorMessage, formatDate, initials } from '@/lib/utils';
+import { avatarColor, conditionTone, errorMessage, formatDate } from '@/lib/utils';
 import { doctorsApi } from '@/lib/api/doctors';
 import { useQuery } from '@tanstack/react-query';
 
@@ -120,14 +118,14 @@ export default function DashboardPage() {
                 feature
                 title="Total patients"
                 value={stats.data?.totalPatients ?? 0}
-                icon={UsersRound}
+                icon={PatientsIcon}
                 hint="Registered across your clinic"
               />
-              <StatCard title="Total doctors" value={stats.data?.totalDoctors ?? 0} icon={Stethoscope} hint="Active profiles" accent="sky" />
+              <StatCard title="Total doctors" value={stats.data?.totalDoctors ?? 0} icon={DoctorsIcon} hint="Active profiles" accent="sky" />
               <StatCard
                 title="New doctors this month"
                 value={stats.data?.newDoctorsThisMonth ?? 0}
-                icon={UserPlus}
+                icon={InsightsIcon}
                 hint="Joined since the 1st"
                 trend="+"
                 accent="indigo"
@@ -135,7 +133,7 @@ export default function DashboardPage() {
               <StatCard
                 title="New patients this month"
                 value={stats.data?.newPatientsThisMonth ?? 0}
-                icon={HeartPulse}
+                icon={InsightsIcon}
                 hint="Registered since the 1st"
                 trend="+"
                 accent="amber"
@@ -192,9 +190,15 @@ export default function DashboardPage() {
                 <ul className="divide-y divide-border/70">
                   {recent.data.map((patient) => (
                     <li key={patient.id} className="flex items-center gap-3 py-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarFallback className={`text-[11px] ${avatarColor(patient.name)}`}>{initials(patient.name)}</AvatarFallback>
-                      </Avatar>
+                      <EntityAvatar
+                        kind="patients"
+                        id={patient.id}
+                        name={patient.name}
+                        hasPhoto={patient.hasPhoto}
+                        version={patient.updatedAt}
+                        className="h-9 w-9"
+                        fallbackClassName={`text-[11px] ${avatarColor(patient.name)}`}
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-[13px] font-semibold text-slate-800">{patient.name}</p>
                         <p className="truncate text-[11px] text-muted-foreground">Assigned to {patient.doctorName ?? 'Unassigned'}</p>
@@ -228,9 +232,15 @@ export default function DashboardPage() {
                     const max = Math.max(...topDoctors.data!.data.map((item) => item.patientCount), 1);
                     return (
                       <li key={doctor.id} className="flex items-center gap-3 py-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarFallback className={`text-[11px] ${avatarColor(doctor.name)}`}>{initials(doctor.name)}</AvatarFallback>
-                        </Avatar>
+                        <EntityAvatar
+                          kind="doctors"
+                          id={doctor.id}
+                          name={doctor.name}
+                          hasPhoto={doctor.hasPhoto}
+                          version={doctor.updatedAt}
+                          className="h-9 w-9"
+                          fallbackClassName={`text-[11px] ${avatarColor(doctor.name)}`}
+                        />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-[13px] font-semibold text-slate-800">{doctor.name}</p>
                           <div className="mt-1.5 h-1 w-full max-w-[160px] overflow-hidden rounded-full bg-slate-100">

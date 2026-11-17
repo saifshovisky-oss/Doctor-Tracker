@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -9,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textArea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PhotoField } from '@/components/common/photo-field';
 import { Spinner } from '@/components/common/states';
 import { DoctorCombobox } from '@/components/doctors/doctor-combobox';
 import { ConditionCombobox } from '@/components/patients/condition-combobox';
 import { patientSchema } from '@/lib/validators';
+import { patientsApi } from '@/lib/api/patients';
 import { useCreatePatient, useUpdatePatient } from '@/lib/hooks/use-data';
 import { errorMessage } from '@/lib/utils';
 import type { Patient, PatientFormValues } from '@/lib/types';
@@ -64,7 +67,9 @@ export function PatientForm({
 }) {
   const create = useCreatePatient();
   const update = useUpdatePatient();
+  const queryClient = useQueryClient();
   const pending = create.isPending || update.isPending;
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema) as Resolver<PatientFormValues>,
@@ -92,10 +97,17 @@ export function PatientForm({
         await update.mutateAsync({ id: patient.id, values: payload });
         toast.success('Patient updated successfully');
       } else {
-        await create.mutateAsync(payload);
+        const created = await create.mutateAsync(payload);
+        if (pendingFile) {
+          await patientsApi.uploadPhoto(created.id, pendingFile);
+          await queryClient.invalidateQueries({ queryKey: ['patients'] });
+          await queryClient.invalidateQueries({ queryKey: ['patient', created.id] });
+          await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }
         toast.success('Patient added successfully');
       }
       form.reset(defaults);
+      setPendingFile(null);
       onSuccess?.();
     } catch (error) {
       toast.error(errorMessage(error));
@@ -104,6 +116,23 @@ export function PatientForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">Photo</span>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Profile picture</span>
+        </div>
+        <PhotoField
+          kind="patients"
+          id={patient?.id}
+          name={form.watch('name') || patient?.name || 'New patient'}
+          hasPhoto={patient?.hasPhoto}
+          version={patient?.updatedAt}
+          pendingFile={pendingFile}
+          onPendingFileChange={setPendingFile}
+        />
+      </section>
+
       <section className="space-y-4">
         <div className="flex items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">01</span>

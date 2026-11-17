@@ -6,6 +6,7 @@ import { LogOut } from 'lucide-react';
 import { navItems, product } from './nav-items';
 import { cn, initials, avatarColor } from '@/lib/utils';
 import { useAuth } from '@/components/providers/auth-provider';
+import { DtLogo, DtLogoWhite } from '@/components/brand/dt-logo';
 
 export function SidebarContent({
   onNavigate,
@@ -16,24 +17,25 @@ export function SidebarContent({
 }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const Icon = product.icon;
 
   return (
     <div className="flex h-full flex-col">
       <div
         className={cn(
           'flex h-16 items-center border-b border-border',
-          collapsed ? 'justify-center px-3' : 'gap-2.5 px-5',
+          collapsed ? 'justify-center px-3' : 'px-5',
         )}
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-teal-700 text-white shadow-sm">
-          <Icon className="h-[18px] w-[18px]" />
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold leading-tight text-foreground">{product.name}</p>
-            <p className="truncate text-[11px] leading-tight text-muted-foreground">{product.tagline}</p>
+        {collapsed ? (
+          /* Collapsed: show just the icon mark — the green circle accent from the logo */
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#123C43]">
+            <svg viewBox="80 60 90 90" className="h-5 w-5" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="150" cy="80" r="14" fill="#A6FF8B" />
+              <path d="M129 92H80V137H107V170H128V137H129V92Z" fill="#20BFA9" />
+            </svg>
           </div>
+        ) : (
+          <DtLogo className="h-9 w-auto" aria-label="Doctor Tracker" />
         )}
       </div>
 

@@ -11,10 +11,10 @@ import { SearchInput } from '@/components/common/search-input';
 import { DateRangeFilter, FilterDropdown } from '@/components/common/filters';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { EmptyState } from '@/components/common/states';
+import { EntityAvatar } from '@/components/common/entity-avatar';
 import { DoctorForm } from '@/components/doctors/doctor-form';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,7 @@ import {
 import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useListParams } from '@/lib/hooks/use-list-params';
 import { useDeleteDoctor, useDoctors, useSpecializations } from '@/lib/hooks/use-data';
-import { avatarColor, errorMessage, formatDate, initials } from '@/lib/utils';
+import { avatarColor, errorMessage, formatDate } from '@/lib/utils';
 import type { Doctor } from '@/lib/types';
 
 export default function DoctorsPage() {
@@ -88,9 +88,7 @@ export default function DoctorsPage() {
       sortKey: 'name',
       cell: (doctor) => (
         <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className={avatarColor(doctor.name)}>{initials(doctor.name)}</AvatarFallback>
-          </Avatar>
+          <EntityAvatar kind="doctors" id={doctor.id} name={doctor.name} hasPhoto={doctor.hasPhoto} version={doctor.updatedAt} />
           <div className="min-w-0">
             <Link href={`/doctors/${doctor.id}`} className="block truncate text-sm font-medium text-foreground hover:text-teal-700 hover:underline">
               {doctor.name}
