@@ -22,10 +22,16 @@ export function StatCard({
   href?: string;
 }) {
   const accents = {
-    teal: 'bg-teal-50 text-teal-700',
-    sky: 'bg-sky-50 text-sky-700',
-    indigo: 'bg-indigo-50 text-indigo-700',
-    amber: 'bg-amber-50 text-amber-700',
+    teal: 'bg-teal-500',
+    sky: 'bg-sky-500',
+    indigo: 'bg-indigo-500',
+    amber: 'bg-amber-500',
+  };
+  const iconColors = {
+    teal: 'text-teal-700',
+    sky: 'text-sky-700',
+    indigo: 'text-indigo-700',
+    amber: 'text-amber-700',
   };
 
   const hover = 'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40';
@@ -38,9 +44,7 @@ export function StatCard({
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">{title}</p>
           <p className="mt-3 text-[34px] font-semibold leading-none tracking-tight tabular-nums">{value}</p>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white/10 text-teal-300">
-          <Icon className="h-5 w-5" strokeWidth={1.8} />
-        </div>
+        <Icon className="h-7 w-7 shrink-0 text-teal-300" strokeWidth={1.8} />
       </div>
       {hint && <p className="relative mt-4 text-xs text-slate-400">{hint}</p>}
     </div>
@@ -49,9 +53,7 @@ export function StatCard({
       <span className={cn('absolute inset-x-0 top-0 h-0.5', accents[accent])} aria-hidden />
       <div className="flex items-start justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
-        <div className={cn('flex h-9 w-9 items-center justify-center rounded-md transition-colors', accents[accent])}>
-          <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
-        </div>
+        <Icon className={cn('h-7 w-7 shrink-0', iconColors[accent])} strokeWidth={1.8} />
       </div>
       <p className="mt-4 text-[28px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</p>
       {hint && (
