@@ -76,8 +76,8 @@ export default function LoginPage() {
               { title: 'Doctors', subtitle: 'Profiles & patients', Icon: DoctorsIcon },
               { title: 'Patients', subtitle: 'Records & conditions', Icon: PatientsIcon },
               { title: 'Insights', subtitle: 'Real-time analytics', Icon: InsightsIcon },
-            ].map(({ title, subtitle, Icon }, index) => (
-              <div key={title} className={index > 0 ? 'border-l border-white/10 pl-5' : undefined}>
+            ].map(({ title, subtitle, Icon }) => (
+              <div key={title} className="border-l border-white/10 pl-5">
                 <Icon className="mb-2 h-7 w-7 text-teal-300 opacity-80" />
                 <p className="text-base font-semibold">{title}</p>
                 <p className="mt-1 text-[11px] text-slate-400">{subtitle}</p>
