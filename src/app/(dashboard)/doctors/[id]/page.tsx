@@ -64,7 +64,12 @@ export default function DoctorDetailsPage() {
             fallbackClassName={`text-[10px] rounded-full`}
           />
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-semibold text-slate-800">{patient.name}</p>
+            <Link
+              href={`/patients/${patient.id}`}
+              className="block truncate text-[13px] font-semibold text-slate-800 hover:text-teal-700 hover:underline"
+            >
+              {patient.name}
+            </Link>
             <p className="truncate text-[11px] text-muted-foreground">{patient.email ?? patient.phone ?? 'No contact details'}</p>
           </div>
         </div>

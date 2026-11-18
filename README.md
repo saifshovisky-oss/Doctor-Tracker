@@ -111,6 +111,7 @@ Real captures from the running application (seeded demo data, no mockups):
 | ![Doctors desktop](./screenshots/doctors-desktop.png) | ![Doctors mobile](./screenshots/doctors-mobile.png) |
 | ![Patients desktop](./screenshots/patients-desktop.png) | ![Patients mobile](./screenshots/patients-mobile.png) |
 | ![Doctor details](./screenshots/doctor-details-desktop.png) | — |
+| ![Patient profile](./screenshots/patient-profile-desktop.png) | — |
 | ![Searchable doctor picker](./screenshots/searchable-doctor-dropdown.png) | — |
 
 Regenerate them with:

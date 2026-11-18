@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { MoreHorizontal, Pencil, Plus, Trash2, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable, type Column } from '@/components/common/data-table';
@@ -93,7 +94,12 @@ export default function PatientsPage() {
         <div className="flex items-center gap-3">
           <EntityAvatar kind="patients" id={patient.id} name={patient.name} hasPhoto={patient.hasPhoto} version={patient.updatedAt} />
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{patient.name}</p>
+            <Link
+              href={`/patients/${patient.id}`}
+              className="block truncate text-sm font-medium text-foreground hover:text-teal-700 hover:underline"
+            >
+              {patient.name}
+            </Link>
             <p className="truncate text-xs text-muted-foreground">{patient.email ?? patient.phone ?? 'No contact details'}</p>
           </div>
         </div>
@@ -140,6 +146,9 @@ export default function PatientsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/patients/${patient.id}`}><UserRound className="h-4 w-4" /> View profile</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => openEdit(patient)}><Pencil className="h-4 w-4" /> Edit</DropdownMenuItem>
             <ConfirmDialog
               trigger={

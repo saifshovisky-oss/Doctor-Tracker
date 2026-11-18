@@ -18,7 +18,7 @@ export function StatCard({
   hint?: string;
   trend?: string;
   feature?: boolean;
-  accent?: 'teal' | 'sky' | 'indigo' | 'amber';
+  accent?: 'teal' | 'sky' | 'indigo' | 'amber' | 'rose';
   href?: string;
 }) {
   const accents = {
@@ -26,12 +26,14 @@ export function StatCard({
     sky: 'bg-sky-500',
     indigo: 'bg-indigo-500',
     amber: 'bg-amber-500',
+    rose: 'bg-rose-500',
   };
   const iconColors = {
     teal: 'text-teal-700',
     sky: 'text-sky-700',
     indigo: 'text-indigo-700',
     amber: 'text-amber-700',
+    rose: 'text-rose-700',
   };
 
   const hover = 'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40';
