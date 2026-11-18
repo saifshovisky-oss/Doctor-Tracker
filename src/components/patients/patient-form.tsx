@@ -93,22 +93,33 @@ export function PatientForm({
       notes: values.notes || undefined,
     };
     try {
+      let createdId: string | undefined;
+
       if (patient) {
         await update.mutateAsync({ id: patient.id, values: payload });
+        createdId = patient.id;
         toast.success('Patient updated successfully');
       } else {
         const created = await create.mutateAsync(payload);
-        if (pendingFile) {
-          await patientsApi.uploadPhoto(created.id, pendingFile);
-          await queryClient.invalidateQueries({ queryKey: ['patients'] });
-          await queryClient.invalidateQueries({ queryKey: ['patient', created.id] });
-          await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-        }
+        createdId = created.id;
         toast.success('Patient added successfully');
       }
+
       form.reset(defaults);
       setPendingFile(null);
       onSuccess?.();
+
+      if (pendingFile && createdId) {
+        void patientsApi
+          .uploadPhoto(createdId, pendingFile)
+          .then(() => {
+            void queryClient.invalidateQueries({ queryKey: ['patients'] });
+            void queryClient.invalidateQueries({ queryKey: ['patient', createdId] });
+            void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            toast.success('Profile photo added');
+          })
+          .catch((error) => toast.error(`Photo upload failed: ${errorMessage(error)}`));
+      }
     } catch (error) {
       toast.error(errorMessage(error));
     }

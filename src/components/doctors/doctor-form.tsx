@@ -56,21 +56,34 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
 
   const onSubmit = form.handleSubmit(async (values) => {
     try {
+      let createdId: string | undefined;
+
       if (doctor) {
         await update.mutateAsync({ id: doctor.id, values });
+        createdId = doctor.id;
         toast.success('Doctor updated successfully');
       } else {
         const created = await create.mutateAsync(values);
-        if (pendingFile) {
-          await doctorsApi.uploadPhoto(created.id, pendingFile);
-          await queryClient.invalidateQueries({ queryKey: ['doctors'] });
-          await queryClient.invalidateQueries({ queryKey: ['doctor', created.id] });
-        }
+        createdId = created.id;
         toast.success('Doctor added successfully');
       }
+
+      // Close the dialog immediately; the network request is already complete.
       form.reset(defaults);
       setPendingFile(null);
       onSuccess?.();
+
+      // Upload the selected photo in the background so it never delays the dialog.
+      if (pendingFile && createdId) {
+        void doctorsApi
+          .uploadPhoto(createdId, pendingFile)
+          .then(() => {
+            void queryClient.invalidateQueries({ queryKey: ['doctors'] });
+            void queryClient.invalidateQueries({ queryKey: ['doctor', createdId] });
+            toast.success('Profile photo added');
+          })
+          .catch((error) => toast.error(`Photo upload failed: ${errorMessage(error)}`));
+      }
     } catch (error) {
       toast.error(errorMessage(error));
     }
