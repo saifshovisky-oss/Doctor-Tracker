@@ -47,6 +47,7 @@ export default function DoctorDetailsPage() {
   if (!doctor.data) return <EmptyState title="Doctor not found" />;
 
   const record = doctor.data;
+  const specs = record.specializations?.length ? record.specializations : [record.specialization].filter(Boolean);
 
   const columns: Column<Patient>[] = [
     {
@@ -117,7 +118,7 @@ export default function DoctorDetailsPage() {
       <PageHeader
         eyebrow="Doctor profile"
         title={record.name}
-        description={`${record.specialization} · ${record.hospital}`}
+        description={`${specs.join(', ')} · ${record.hospital}`}
         breadcrumb={['Dashboard', 'Doctors', record.name]}
         actions={
           <>
@@ -148,7 +149,7 @@ export default function DoctorDetailsPage() {
             <div className="min-w-0 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl font-semibold tracking-tight text-slate-900">{record.name}</h2>
-                <Badge variant="teal">{record.specialization}</Badge>
+                {specs.map((item) => <Badge key={item} variant="teal">{item}</Badge>)}
               </div>
               <p className="flex items-center gap-1.5 text-[13px] text-slate-600">
                 <Building2 className="h-4 w-4 text-slate-400" strokeWidth={1.8} />
@@ -180,7 +181,7 @@ export default function DoctorDetailsPage() {
               <p className="eyebrow">Specialization</p>
               <p className="mt-1.5 flex items-center gap-2 text-[13px] text-slate-700">
                 <Stethoscope className="h-4 w-4 shrink-0 text-indigo-700" strokeWidth={1.8} />
-                {record.specialization}
+                {specs.join(', ')}
               </p>
             </div>
             <div className="min-w-0">
@@ -196,7 +197,7 @@ export default function DoctorDetailsPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Total patients" value={patients.data?.totalItems ?? record.patientCount} icon={UsersRound} hint="Currently assigned" feature />
-        <StatCard title="Specialization" value={record.specialization} icon={Stethoscope} hint="Primary focus" accent="sky" />
+        <StatCard title="Specializations" value={specs.length} icon={Stethoscope} hint={specs.join(', ')} accent="sky" />
         <StatCard title="Hospital" value={record.hospital} icon={Building2} hint="Primary practice" accent="indigo" />
         <StatCard title="Joined" value={formatDate(record.createdAt)} icon={CalendarDays} hint="Profile created" accent="amber" />
       </section>

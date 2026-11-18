@@ -7,7 +7,10 @@ export const loginSchema = z.object({
 
 export const doctorSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(150),
-  specialization: z.string().trim().min(1, 'Specialization is required').max(120),
+  specialization: z
+    .array(z.string().trim().min(1).max(120))
+    .min(1, 'Add at least one specialization')
+    .max(10, 'A doctor can have at most 10 specializations'),
   hospital: z.string().trim().min(1, 'Hospital is required').max(180),
   phone: z.string().trim().min(1, 'Phone is required').max(40),
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email address'),

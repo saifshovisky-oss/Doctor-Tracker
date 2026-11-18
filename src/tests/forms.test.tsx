@@ -21,6 +21,7 @@ vi.mock('@/lib/hooks/use-data', () => ({
     isPending: false,
     isError: false,
   }),
+  useSpecializations: () => ({ data: ['Cardiology', 'Dermatology'], isPending: false }),
   usePatientConditions: () => ({ data: ['Hypertension', 'Diabetes'], isPending: false }),
   useConditionsCatalog: () => ({ data: { data: [{ name: 'Hypertension' }, { name: 'Diabetes' }] }, isPending: false }),
   useUploadDoctorPhoto: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -45,7 +46,11 @@ describe('CRUD forms', () => {
     expect(createDoctor).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText('Full name'), { target: { value: 'Dr. Jane' } });
-    fireEvent.change(screen.getByLabelText('Specialization'), { target: { value: 'Cardiology' } });
+    const specInput = screen.getByLabelText('Add specialization');
+    fireEvent.change(specInput, { target: { value: 'Cardiology' } });
+    fireEvent.keyDown(specInput, { key: 'Enter' });
+    fireEvent.change(specInput, { target: { value: 'Internal Medicine' } });
+    fireEvent.keyDown(specInput, { key: 'Enter' });
     fireEvent.change(screen.getByLabelText('Hospital'), { target: { value: 'General' } });
     fireEvent.change(screen.getByLabelText('Email address'), { target: { value: 'jane@clinic.com' } });
     fireEvent.change(screen.getByLabelText('Phone'), { target: { value: '555' } });
@@ -53,7 +58,7 @@ describe('CRUD forms', () => {
     await waitFor(() =>
       expect(createDoctor).toHaveBeenCalledWith({
         name: 'Dr. Jane',
-        specialization: 'Cardiology',
+        specialization: ['Cardiology', 'Internal Medicine'],
         hospital: 'General',
         email: 'jane@clinic.com',
         phone: '555',

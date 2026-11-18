@@ -102,7 +102,15 @@ export default function DoctorsPage() {
       key: 'specialization',
       header: 'Specialization',
       sortKey: 'specialization',
-      cell: (doctor) => <Badge variant="teal">{doctor.specialization}</Badge>,
+      cell: (doctor) => (
+        <div className="flex flex-wrap gap-1">
+          {(doctor.specializations?.length ? doctor.specializations : [doctor.specialization])
+            .filter(Boolean)
+            .map((item) => (
+              <Badge key={item} variant="teal">{item}</Badge>
+            ))}
+        </div>
+      ),
     },
     { key: 'hospital', header: 'Hospital', sortKey: 'hospital', cell: (doctor) => <span className="text-sm text-slate-600">{doctor.hospital}</span> },
     { key: 'phone', header: 'Phone', cell: (doctor) => <span className="text-sm text-slate-600">{doctor.phone || '—'}</span> },

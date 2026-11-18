@@ -37,7 +37,7 @@ export function DoctorCombobox({
       options={(data?.data ?? []).map((doctor) => ({
         value: doctor.id,
         label: doctor.name,
-        description: `${doctor.specialization} · ${doctor.hospital}`,
+        description: `${(doctor.specializations?.length ? doctor.specializations : [doctor.specialization]).join(', ')} · ${doctor.hospital}`,
       }))}
       placeholder="Search and select a doctor"
       searchPlaceholder="Type a doctor name, specialty or hospital…"

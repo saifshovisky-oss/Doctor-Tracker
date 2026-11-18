@@ -9,6 +9,7 @@ export interface Doctor {
   id: string;
   name: string;
   specialization: string;
+  specializations?: string[];
   hospital: string;
   phone: string;
   email: string;
@@ -29,6 +30,7 @@ export interface Patient {
   doctorId: string;
   doctorName?: string;
   doctorSpecialization?: string;
+  doctorSpecializations?: string[];
   hasPhoto: boolean;
   notes?: string;
   createdAt: string;
@@ -70,7 +72,7 @@ export interface DoctorCount {
 
 export interface DoctorFormValues {
   name: string;
-  specialization: string;
+  specialization: string[];
   hospital: string;
   phone: string;
   email: string;

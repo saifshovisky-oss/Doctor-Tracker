@@ -9,11 +9,11 @@ describe('Form validation schemas', () => {
   });
 
   it('requires all doctor fields', () => {
-    expect(doctorSchema.safeParse({ name: '', specialization: '', hospital: '', email: 'bad', phone: '' }).success).toBe(false);
+    expect(doctorSchema.safeParse({ name: '', specialization: [], hospital: '', email: 'bad', phone: '' }).success).toBe(false);
     expect(
       doctorSchema.safeParse({
         name: 'Dr. Who',
-        specialization: 'Cardiology',
+        specialization: ['Cardiology', 'Internal Medicine'],
         hospital: 'General',
         email: 'who@clinic.com',
         phone: '555',

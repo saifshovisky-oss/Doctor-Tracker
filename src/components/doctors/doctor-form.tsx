@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhotoField } from '@/components/common/photo-field';
+import { SpecializationInput } from '@/components/doctors/specialization-input';
 import { Spinner } from '@/components/common/states';
 import { doctorSchema } from '@/lib/validators';
 import { doctorsApi } from '@/lib/api/doctors';
@@ -16,7 +17,20 @@ import { useCreateDoctor, useUpdateDoctor } from '@/lib/hooks/use-data';
 import { errorMessage } from '@/lib/utils';
 import type { Doctor, DoctorFormValues } from '@/lib/types';
 
-const defaults: DoctorFormValues = { name: '', specialization: '', hospital: '', phone: '', email: '' };
+const defaults: DoctorFormValues = { name: '', specialization: [], hospital: '', phone: '', email: '' };
+
+function toValues(doctor?: Doctor): DoctorFormValues {
+  if (!doctor) return defaults;
+  return {
+    name: doctor.name,
+    specialization: doctor.specializations?.length
+      ? [...doctor.specializations]
+      : [doctor.specialization].filter(Boolean),
+    hospital: doctor.hospital,
+    phone: doctor.phone,
+    email: doctor.email,
+  };
+}
 
 function Field({ label, id, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
   return (
@@ -37,20 +51,12 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
 
   const form = useForm<DoctorFormValues>({
     resolver: zodResolver(doctorSchema),
-    defaultValues: doctor
-      ? { name: doctor.name, specialization: doctor.specialization, hospital: doctor.hospital, phone: doctor.phone, email: doctor.email }
-      : defaults,
+    defaultValues: toValues(doctor),
   });
 
   useEffect(() => {
     if (doctor) {
-      form.reset({
-        name: doctor.name,
-        specialization: doctor.specialization,
-        hospital: doctor.hospital,
-        phone: doctor.phone,
-        email: doctor.email,
-      });
+      form.reset(toValues(doctor));
     }
   }, [doctor, form]);
 
@@ -126,7 +132,15 @@ export function DoctorForm({ doctor, onSuccess, onCancel }: { doctor?: Doctor; o
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Practice</span>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Specialization" id="doctor-specialization" placeholder="Cardiology" error={errors.specialization?.message} {...form.register('specialization')} />
+          <div className="space-y-2">
+            <Label htmlFor="doctor-specialization" className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Specializations</Label>
+            <SpecializationInput
+              value={form.watch('specialization')}
+              onChange={(value) => form.setValue('specialization', value, { shouldValidate: true, shouldDirty: true })}
+              invalid={!!errors.specialization}
+            />
+            {errors.specialization && <p role="alert" className="text-xs text-rose-600">{errors.specialization.message}</p>}
+          </div>
           <Field label="Hospital" id="doctor-hospital" placeholder="Central Hospital" error={errors.hospital?.message} {...form.register('hospital')} />
         </div>
       </section>
